@@ -67,8 +67,6 @@ find_package(Eigen3 REQUIRED)
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  RecFuse.srv
-  GoToPole.srv
   NewViewPoint.srv
 )
 
@@ -149,9 +147,6 @@ include_directories(
 
 add_executable(record_pointcloud_trajectory src/record_pointcloud_trajectory.cpp)
 target_link_libraries(record_pointcloud_trajectory ${catkin_LIBRARIES})
-
-add_executable(new_viewpoint_trajectory src/new_viewpoint_trajectory.cpp)
-target_link_libraries(new_viewpoint_trajectory ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

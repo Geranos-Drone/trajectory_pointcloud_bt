@@ -53,7 +53,7 @@ bool TRAJECTORY_PC::Rec_Fus_PC(std_srvs::Empty::Request& request, std_srvs::Empt
         if (!execute_traj.call(srv))
           ROS_ERROR_STREAM("Was not able to call execute_trajectory from record_pointcloud_trajectory_node service!");
       }
-      ros::Duration(12).sleep(); // sleep while trajectory is taking place
+      ros::Duration(3).sleep(); // sleep while trajectory is taking place
     }
     else if (response_pole_found == 0) { //no pole
       tf_transformer_();      
@@ -77,7 +77,7 @@ bool TRAJECTORY_PC::Rec_Fus_PC(std_srvs::Empty::Request& request, std_srvs::Empt
       response_pole_found = 1;
       break;
     }
-    else if (response_pole_found == 2) { //bottom
+    else if (response_pole_found == 2) { //bottom of pole not in view
       tf_transformer_();      
       current_position = T_B_world_1.translation();
       Eigen::Matrix3d rotational_matrix = T_B_world_1.rotation();
@@ -93,7 +93,7 @@ bool TRAJECTORY_PC::Rec_Fus_PC(std_srvs::Empty::Request& request, std_srvs::Empt
       }
       ros::Duration(2.5).sleep(); // sleep while trajectory is taking place
     }
-    else if (response_pole_found == 3) { //top
+    else if (response_pole_found == 3) { //top of pole not in view
       tf_transformer_();      
       current_position = T_B_world_1.translation();
       Eigen::Matrix3d rotational_matrix = T_B_world_1.rotation();
@@ -109,7 +109,7 @@ bool TRAJECTORY_PC::Rec_Fus_PC(std_srvs::Empty::Request& request, std_srvs::Empt
       }
       ros::Duration(5).sleep(); // sleep while trajectory is taking place
     }
-    else if (response_pole_found == 4) { //edge left
+    else if (response_pole_found == 4) { //pole in left edge
       tf_transformer_();      
       current_position = T_B_world_1.translation();
       Eigen::Matrix3d rotational_matrix = T_B_world_1.rotation();
@@ -125,7 +125,7 @@ bool TRAJECTORY_PC::Rec_Fus_PC(std_srvs::Empty::Request& request, std_srvs::Empt
       }
       ros::Duration(5).sleep(); // sleep while trajectory is taking place
     }
-    else if (response_pole_found == 5) { //edge right
+    else if (response_pole_found == 5) { //pole in right edge
       tf_transformer_();      
       current_position = T_B_world_1.translation();
       Eigen::Matrix3d rotational_matrix = T_B_world_1.rotation();
@@ -232,48 +232,14 @@ bool TRAJECTORY_PC::getTrajectory_height(const Eigen::Vector3d &current_position
   yaml_point1["stop"] = true;
   yaml_point1["time"] = time;
   
-  YAML::Node yaml_point0 = YAML::Node(YAML::NodeType::Map);
   YAML::Node yaml_point2 = YAML::Node(YAML::NodeType::Map);
-  YAML::Node yaml_point3 = YAML::Node(YAML::NodeType::Map);
-
-  if (durchlaeufe_ == 0) {
-    current_position[2] = 3; 
-    yaml_point0["pos"] = current_position;
-    yaml_point0["att"] = current_rotation;
-    yaml_point0["stop"] = true;
-    yaml_point0["time"] = time1;
-    end_position[0] = -3.3;
-    end_position[1] = -1.3; 
-    end_position[2] = 3; 
-    yaml_point2["pos"] = end_position;
-    yaml_point2["att"] = current_rotation;
-    yaml_point2["stop"] = true;
-    yaml_point2["time"] = time1;
-    current_rotation[0] = 0.7; //1.6
-    end_position[2] = 1;
-    yaml_point3["pos"] = end_position;
-    yaml_point3["att"] = current_rotation;
-    yaml_point3["stop"] = true;
-    yaml_point3["time"] = time1;
-  }
-  else {
-    yaml_point2["pos"] = end_position;
-    yaml_point2["att"] = current_rotation;
-    yaml_point2["stop"] = true;
-    yaml_point2["time"] = time1;
-  }
+  yaml_point2["pos"] = end_position;
+  yaml_point2["att"] = current_rotation;
+  yaml_point2["stop"] = true;
+  yaml_point2["time"] = time1;
 
   point_list.push_back(yaml_point1);
-
-  if (durchlaeufe_ == 0) {  
-    point_list.push_back(yaml_point0);
-    point_list.push_back(yaml_point0);
-    point_list.push_back(yaml_point2);
-    point_list.push_back(yaml_point2);
-    point_list.push_back(yaml_point3);
-  }
-  else 
-    point_list.push_back(yaml_point2);
+  point_list.push_back(yaml_point2);
   
   emitter << YAML::Value << point_list;
   emitter << YAML::EndMap;
